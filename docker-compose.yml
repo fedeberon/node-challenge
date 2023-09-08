@@ -1,0 +1,41 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:latest
+    restart: unless-stopped
+    env_file: ./.env
+    container_name: person-management-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - person_management_network
+
+  person-management-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: person-management-backend
+    ports:
+      - "3000:3000"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+    depends_on:
+      - mysql
+    networks:
+      - person_management_network
+
+volumes:
+  mysql-data:
+
+networks:
+  person_management_network:
